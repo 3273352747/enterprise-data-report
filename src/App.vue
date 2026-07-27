@@ -1,14 +1,33 @@
 <script setup>
-import { ref } from 'vue'
+import { ref,computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Download,UploadFilled } from '@element-plus/icons-vue'
 import DataPreview from './components/DataPreview.vue'
 import { parseExcelFile } from './utils/excel'
+import ValidationPanel from './components/ValidationPanel.vue'
+import { validateRows } from './utils/validator.js'
 
 const selectedFile = ref(null)
 const importedRows = ref([])
 const parsing = ref(false)
 const templateUrl = `${import.meta.env.BASE_URL}经营数据模板.xlsx`
+
+const validatedRows = computed(() => {
+  return validateRows(importedRows.value)
+})
+
+const validRows = computed(() => {
+  return validatedRows.value.filter((row) => row.valid)
+})
+
+const invalidRows = computed(() => {
+  return validatedRows.value.filter((row) => !row.valid)
+})
+
+const activeStep = computed(() => {
+  if(importedRows.value.length === 0) return 0
+  return invalidRows.value.length === 0 ? 2 : 1
+})
 
 async function handleFileChange(file) {
   selectedFile.value = file.raw
@@ -44,7 +63,7 @@ function handleFileRemove() {
     <main class="workspace">
       <h2>经营数据导入</h2>
 
-      <el-steps :active="importedRows.length ? 1:0" align-center>
+      <el-steps :active="activeStep" align-center>
         <el-step title="导入数据" />
         <el-step title="数据校验" />
         <el-step title="分析报表" />
@@ -87,6 +106,13 @@ function handleFileRemove() {
         description="请先上传经营数据文件" 
         />
       </section>
+
+      <ValidationPanel
+      v-if="importedRows.length > 0"
+      :total-count="importedRows.length"
+      :valid-count="validRows.length"
+      :invalid-rows="invalidRows"
+      />
     </main>
   </div>
 </template>

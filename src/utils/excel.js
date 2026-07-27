@@ -43,7 +43,7 @@ export async function parseExcelFile(file) {
 
     return sourceRows.map((row,index) => ({
         rowNumber: index + 2,
-        month: String(row['月份'] ?? '').trim(),
+        month: String(row['月份'] ?? '').trim().replace(/^['’]/,''),
         department: String(row['部门'] ?? '').trim(),
         region: String(row['区域'] ?? '').trim(),
         businessType: String(row['业务类型'] ?? '').trim(),
