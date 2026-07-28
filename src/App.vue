@@ -6,6 +6,7 @@ import DataPreview from './components/DataPreview.vue'
 import { parseExcelFile } from './utils/excel'
 import ValidationPanel from './components/ValidationPanel.vue'
 import { validateRows } from './utils/validator.js'
+import AnalysisPanel from './components/AnalysisPanel.vue'
 
 const selectedFile = ref(null)
 const importedRows = ref([])
@@ -112,6 +113,11 @@ function handleFileRemove() {
       :total-count="importedRows.length"
       :valid-count="validRows.length"
       :invalid-rows="invalidRows"
+      />
+
+      <AnalysisPanel
+      v-if="validRows.length > 0 && invalidRows.length === 0"
+      :rows="validRows"
       />
     </main>
   </div>
