@@ -1,23 +1,41 @@
 <script setup>
-defineProps({
-    totalCount: {
-        type: Number,
-        required: true
-    },
-    validCount: {
-        type: Number,
-        required: true
-    },
+import { ElMessage } from 'element-plus'
+import { Download } from '@element-plus/icons-vue'
+import { exportInvalidRows } from '../utils/exportExcel'
+
+const props = defineProps({
+    totalCount: Number,
+    validCount: Number,
     invalidRows: {
         type: Array,
         required: true
     },
 })
+
+function handleExportErrors() {
+    const success = exportInvalidRows(props.invalidRows)
+
+    if(success){
+        ElMessage.success('错误数据清单导出成功')
+    } else {
+        ElMessage.warning('没有可以导出的错误数据')
+    }
+}
 </script>
 
 <template>
     <section class="panel">
+        <div class="panel-header">
         <h3>数据校验结果</h3>
+
+        <el-button
+        v-if="invalidRows.length > 0"
+        type="danger"
+        plain
+        :icon="Download"
+        @click="handleExportErrors"
+        >导出错误清单</el-button>
+        </div>
 
         <div class="validation-summary">
             <span>总数据：<strong>{{ totalCount }}</strong></span>
@@ -74,5 +92,16 @@ defineProps({
 
 .error-table {
     margin-top: 16px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.panel-header h3 {
+  margin: 0;
 }
 </style>
