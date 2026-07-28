@@ -1,6 +1,7 @@
 <script setup>
 import { ref,computed } from 'vue'
 import { RefreshLeft } from '@element-plus/icons-vue'
+import RevenueTrendChart from './charts/RevenueTrendChart.vue'
 
 const props = defineProps({
     rows: {
@@ -143,6 +144,11 @@ function resetFilters() {
                 <strong>{{ metrics.completionRate.toFixed(1) }}%</strong>
             </article>
         </div>
+
+        <RevenueTrendChart
+        v-if="filteredRows.length > 0"
+        :rows="filteredRows"
+        />
 
         <el-empty
         v-if="filteredRows.length === 0"
