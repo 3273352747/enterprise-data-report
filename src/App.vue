@@ -1,5 +1,5 @@
 <script setup>
-import { ref,computed } from 'vue'
+import { ref,computed,onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Download,UploadFilled } from '@element-plus/icons-vue'
 import DataPreview from './components/DataPreview.vue'
@@ -7,10 +7,19 @@ import { parseExcelFile } from './utils/excel'
 import ValidationPanel from './components/ValidationPanel.vue'
 import { validateRows } from './utils/validator.js'
 import AnalysisPanel from './components/AnalysisPanel.vue'
+import { saveCurrentImport,loadCurrentImport,clearCurrentImport } from './utils/storage.js'
 
 const selectedFile = ref(null)
 const importedRows = ref([])
 const parsing = ref(false)
+
+const uploadRef = ref(null)
+const restoredFileName = ref('')
+
+const displayFileName = computed(() => {
+  return selectedFile.value?.name || restoredFileName.value
+})
+
 const templateUrl = `${import.meta.env.BASE_URL}经营数据模板.xlsx`
 
 const validatedRows = computed(() => {
@@ -35,10 +44,21 @@ async function handleFileChange(file) {
   parsing.value = true
 
   try{
-    importedRows.value = await parseExcelFile(file.raw)
-    ElMessage.success(`成功解析 ${importedRows.value.length} 条数据`)
+    const rows = await parseExcelFile(file.raw)
+
+    importedRows.value = rows
+    restoredFileName.value = ''
+
+    saveCurrentImport({
+      fileName: file.raw.name,
+      savedAt: new Date().toISOString(),
+      rows,
+    })
+
+    ElMessage.success(`成功解析 ${rows.length} 条数据`)
   } catch(error){
     importedRows.value = []
+    clearCurrentImport()
     ElMessage.error(error.message)
   } finally{
     parsing.value = false
@@ -46,8 +66,26 @@ async function handleFileChange(file) {
 }
 
 function handleFileRemove() {
+  clearImportedData()
+}
+
+onMounted(() => {
+  const savedImport = loadCurrentImport()
+
+  if(savedImport?.row?.length){
+    importedRows.value = savedImport.rows
+    restoredFileName.value = savedImport.fileName
+    ElMessage.info('已恢复上次导入的数据')
+  }
+})
+
+function clearImportedData() {
   selectedFile.value = null
+  restoredFileName.value = ''
   importedRows.value = []
+  uploadRef.value?.clearFiles()
+  clearCurrentImport()
+  ElMessage.success('当前导入数据已清除')
 }
 </script>
 
@@ -73,7 +111,7 @@ function handleFileRemove() {
       <section class="panel">
         <h3>上传经营数据</h3>
 
-        <el-upload
+        <el-upload ref="uploadRef"
         drag
         action="#"
         accept=".xlsx"
@@ -89,9 +127,11 @@ function handleFileRemove() {
         </template>
       </el-upload>
       
-      <p v-if="selectedFile" class="file-info">
-        已选择: {{ selectedFile.name }}
-        <el-tag :type="importedRows.length ? 'success' : 'warning'">{{ parsing ? '解析中' : importedRows.length ? '已解析' : '待解析'}}</el-tag>
+      <p v-if="displayFileName" class="file-info">
+        已导入: {{ displayFileName }}
+        <el-tag :type="importedRows.length ? 'success' : 'warning'">{{ importedRows.length ? '已解析' : '待解析'}}</el-tag>
+
+        <el-button type="danger" link @click="clearImportedData">清楚当前数据</el-button>
       </p>
       </section>
 
