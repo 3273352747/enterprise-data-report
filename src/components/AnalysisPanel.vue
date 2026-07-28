@@ -2,6 +2,7 @@
 import { ref,computed } from 'vue'
 import { RefreshLeft } from '@element-plus/icons-vue'
 import RevenueTrendChart from './charts/RevenueTrendChart.vue'
+import DepartmentProfitChart from './charts/DepartmentProfitChart.vue'
 
 const props = defineProps({
     rows: {
@@ -146,6 +147,11 @@ function resetFilters() {
         </div>
 
         <RevenueTrendChart
+        v-if="filteredRows.length > 0"
+        :rows="filteredRows"
+        />
+
+        <DepartmentProfitChart
         v-if="filteredRows.length > 0"
         :rows="filteredRows"
         />
