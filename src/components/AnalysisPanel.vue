@@ -3,6 +3,7 @@ import { ref,computed } from 'vue'
 import { RefreshLeft } from '@element-plus/icons-vue'
 import RevenueTrendChart from './charts/RevenueTrendChart.vue'
 import DepartmentProfitChart from './charts/DepartmentProfitChart.vue'
+import RegionRevenueChart from './charts/RegionRevenueChart.vue'
 
 const props = defineProps({
     rows: {
@@ -151,10 +152,10 @@ function resetFilters() {
         :rows="filteredRows"
         />
 
-        <DepartmentProfitChart
-        v-if="filteredRows.length > 0"
-        :rows="filteredRows"
-        />
+        <div v-if="filteredRows.length > 0" class="chart-grid">
+        <DepartmentProfitChart :rows="filteredRows" />
+        <RegionRevenueChart :rows="filteredRows" />
+        </div>
 
         <el-empty
         v-if="filteredRows.length === 0"
@@ -246,5 +247,21 @@ function resetFilters() {
     .metrics-grid {
         grid-template-columns: repeat(2,1fr);
     }
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.chart-grid > * {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
