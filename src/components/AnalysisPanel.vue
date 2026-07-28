@@ -1,9 +1,11 @@
 <script setup>
 import { ref,computed } from 'vue'
-import { RefreshLeft } from '@element-plus/icons-vue'
 import RevenueTrendChart from './charts/RevenueTrendChart.vue'
 import DepartmentProfitChart from './charts/DepartmentProfitChart.vue'
 import RegionRevenueChart from './charts/RegionRevenueChart.vue'
+import { ElMessage } from 'element-plus'
+import { Download, RefreshLeft } from '@element-plus/icons-vue'
+import { exportAnalysisReport } from '../utils/exportExcel'
 
 const props = defineProps({
     rows: {
@@ -74,6 +76,24 @@ function resetFilters() {
     selectedDepartment.value = '全部'
     selectedRegion.value = '全部'
 }
+
+function handleExportReport() {
+  const success = exportAnalysisReport(
+    filteredRows.value,
+    metrics.value,
+    {
+      month: selectedMonth.value,
+      department: selectedDepartment.value,
+      region: selectedRegion.value,
+    },
+  )
+
+  if (success) {
+    ElMessage.success('经营分析报表导出成功')
+  } else {
+    ElMessage.warning('当前没有可以导出的数据')
+  }
+}
 </script>
 
 <template>
@@ -84,7 +104,18 @@ function resetFilters() {
                 <span>当前共 {{ filteredRows.length }} 条有效数据</span>
             </div>
 
+            <div class="heading-actions">
             <el-button :icon="RefreshLeft" @click="resetFilters">重置筛选</el-button>
+
+            <el-button
+            type="primary"
+            :icon="Download"
+            :disabled="filteredRows.length === 0"
+            @click="handleExportReport"
+            >
+            导出分析报表
+            </el-button>
+            </div>
         </div>
 
         <div class="filter-bar">
@@ -263,5 +294,10 @@ function resetFilters() {
   .chart-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.heading-actions {
+  display: flex;
+  gap: 10px;
 }
 </style>
