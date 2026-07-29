@@ -35,13 +35,22 @@ export function loadImportHistory() {
 }
 
 export function addImportHistory(record) {
-    const nextHistory = [record,...loadImportHistory()]
-    .slice(0,MAX_HISTORY_COUNT)
+    try {
+        const nextHistory = [record,...loadImportHistory()]
+        .slice(0,MAX_HISTORY_COUNT)
 
-    localStorage.setItem(IMPORT_HISTORY_KEY,JSON.stringify(nextHistory))
-    return nextHistory
+        localStorage.setItem(IMPORT_HISTORY_KEY,JSON.stringify(nextHistory))
+        return nextHistory
+    } catch {
+        return null
+    }
 }
 
 export function clearImportHistory() {
-  localStorage.removeItem(IMPORT_HISTORY_KEY)
+  try {
+    localStorage.removeItem(IMPORT_HISTORY_KEY)
+    return true
+  } catch {
+    return false
+  }
 }

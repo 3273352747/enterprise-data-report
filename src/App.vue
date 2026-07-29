@@ -15,6 +15,7 @@ import {
   loadImportHistory,
   clearImportHistory, 
 } from './utils/storage.js'
+import ImportHistory from './components/ImportHistory.vue'
 
 const selectedFile = ref(null)
 const importedRows = ref([])
@@ -48,16 +49,16 @@ const activeStep = computed(() => {
 })
 
 async function handleFileChange(file) {
-  selectedFile.value = file.raw
   parsing.value = true
 
   try{
     const rows = await parseExcelFile(file.raw)
 
+    selectedFile.value = file.raw
     importedRows.value = rows
     restoredFileName.value = ''
 
-    saveCurrentImport({
+    const currentImportSaved = saveCurrentImport({
       fileName: file.raw.name,
       savedAt: new Date().toISOString(),
       rows,
@@ -65,7 +66,7 @@ async function handleFileChange(file) {
 
     const checkedRows = validateRows(rows)
 
-    importHistory.value  = addImportHistory({
+    const nextHistory = addImportHistory({
       id: Date.now(),
       fileName: file.raw.name,
       importedAt: new Date().toLocaleString('zh-CN',{
@@ -76,11 +77,22 @@ async function handleFileChange(file) {
       invalidCount: checkedRows.filter((row) => !row.valid).length,
     })
 
-    ElMessage.success(`成功解析 ${rows.length} 条数据`)
+    if(nextHistory){
+      importHistory.value = nextHistory
+    }
+
+    if(currentImportSaved && nextHistory){
+      ElMessage.success(`成功解析 ${rows.length} 条数据`)
+    } else if(!currentImportSaved && !nextHistory) {
+      ElMessage.warning(`成功解析 ${rows.length} 条数据，但当前数据和导入历史都未保存到浏览器`)
+    } else if(!currentImportSaved) {
+      ElMessage.warning(`成功解析 ${rows.length} 条数据，但刷新后无法恢复当前数据`)
+    } else {
+      ElMessage.warning(`成功解析 ${rows.length} 条数据，但本次导入未记录到历史中`)
+    }
   } catch(error){
-    importedRows.value = []
-    clearCurrentImport()
-    ElMessage.error(error.message)
+    uploadRef.value?.clearFiles()
+    ElMessage.error(error instanceof Error ? error.message : '文件解析失败，请重新选择')
   } finally{
     parsing.value = false
   }
@@ -110,9 +122,12 @@ function clearImportedData() {
 }
 
 function handleClearHistory() {
-  clearImportHistory()
-  importHistory.value = []
-  ElMessage.success('导入历史已清空')
+  if(clearImportHistory()){
+    importHistory.value = []
+    ElMessage.success('导入历史已清空')
+  } else {
+    ElMessage.warning('浏览器本地存储不可用，无法清空导入历史')
+  }
 }
 </script>
 
@@ -185,6 +200,11 @@ function handleClearHistory() {
       <AnalysisPanel
       v-if="validRows.length > 0 && invalidRows.length === 0"
       :rows="validRows"
+      />
+
+      <ImportHistory
+      :records="importHistory"
+      @clear="handleClearHistory"
       />
     </main>
   </div>
