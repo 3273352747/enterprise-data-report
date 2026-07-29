@@ -1,5 +1,72 @@
-# Vue 3 + Vite
+# 企业经营数据导入分析与可视化报表平台
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+基于 Vue 3 的企业经营数据处理前端项目，支持 Excel 数据导入、字段校验、经营指标分析、图表展示和报表导出。
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## 项目功能
+
+- 下载标准 Excel 模板并上传 `.xlsx` 经营数据
+- 校验必填表头、月份格式、数值范围和重复经营记录
+- 展示数据预览、有效数据数量和错误原因
+- 导出错误数据清单，方便修改后重新导入
+- 按月份、部门、区域筛选经营数据
+- 计算营业收入、营业成本、利润、预算完成率
+- 展示月度收入成本趋势、部门利润对比、区域营收占比
+- 导出当前筛选条件下的经营分析报表
+- 使用 localStorage 恢复最近一次导入数据，并保留最近 8 条导入历史
+
+## 技术栈
+
+- Vue 3 Composition API
+- Vite
+- Element Plus
+- ECharts
+- SheetJS（xlsx）
+- localStorage
+
+## 数据字段
+
+| 字段 | 说明 |
+| --- | --- |
+| 月份 | 格式为 `YYYY-MM`，例如 `2026-01` |
+| 部门 | 经营所属部门 |
+| 区域 | 经营所属区域 |
+| 业务类型 | 业务分类 |
+| 营业收入 | 大于等于 0 的数字 |
+| 营业成本 | 大于等于 0 的数字 |
+| 预算收入 | 大于 0 的数字 |
+
+## 本地运行
+
+```powershell
+npm.cmd install
+npm.cmd run dev
+```
+
+## 项目结构
+
+```text
+src/
+  components/       页面功能组件与图表组件
+  utils/            Excel 解析、校验、导出、本地存储工具
+  App.vue           项目主页面和数据流程控制
+public/
+  经营数据模板.xlsx
+docs/
+  test-cases.md     功能测试用例与实际执行结果
+```
+
+## 核心流程
+
+```text
+下载模板 -> 上传 Excel -> 数据校验 -> 经营分析 -> 图表展示 -> 导出报表
+```
+
+## 测试记录
+
+已完成 11 个核心功能用例的真实浏览器测试，覆盖正常导入、异常校验、组合筛选、图表渲染、报表导出、本地持久化和历史记录，当前通过率为 100%。
+
+[查看功能测试报告](./docs/test-cases.md)
+
+## 数据说明
+
+本项目为前端练习项目，不接入后端服务。导入数据、导入历史仅保存在当前浏览器；清除浏览器数据后，本地缓存会被移除。
