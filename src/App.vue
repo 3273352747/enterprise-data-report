@@ -7,11 +7,19 @@ import { parseExcelFile } from './utils/excel'
 import ValidationPanel from './components/ValidationPanel.vue'
 import { validateRows } from './utils/validator.js'
 import AnalysisPanel from './components/AnalysisPanel.vue'
-import { saveCurrentImport,loadCurrentImport,clearCurrentImport } from './utils/storage.js'
+import { 
+  saveCurrentImport,
+  loadCurrentImport,
+  clearCurrentImport,
+  addImportHistory,
+  loadImportHistory,
+  clearImportHistory, 
+} from './utils/storage.js'
 
 const selectedFile = ref(null)
 const importedRows = ref([])
 const parsing = ref(false)
+const importHistory = ref(loadImportHistory())
 
 const uploadRef = ref(null)
 const restoredFileName = ref('')
@@ -55,6 +63,19 @@ async function handleFileChange(file) {
       rows,
     })
 
+    const checkedRows = validateRows(rows)
+
+    importHistory.value  = addImportHistory({
+      id: Date.now(),
+      fileName: file.raw.name,
+      importedAt: new Date().toLocaleString('zh-CN',{
+        hour12: false,
+      }),
+      rowCount: rows.length,
+      validCount: checkedRows.filter((row) => row.valid).length,
+      invalidCount: checkedRows.filter((row) => !row.valid).length,
+    })
+
     ElMessage.success(`成功解析 ${rows.length} 条数据`)
   } catch(error){
     importedRows.value = []
@@ -72,7 +93,7 @@ function handleFileRemove() {
 onMounted(() => {
   const savedImport = loadCurrentImport()
 
-  if(savedImport?.row?.length){
+  if(savedImport?.rows?.length){
     importedRows.value = savedImport.rows
     restoredFileName.value = savedImport.fileName
     ElMessage.info('已恢复上次导入的数据')
@@ -86,6 +107,12 @@ function clearImportedData() {
   uploadRef.value?.clearFiles()
   clearCurrentImport()
   ElMessage.success('当前导入数据已清除')
+}
+
+function handleClearHistory() {
+  clearImportHistory()
+  importHistory.value = []
+  ElMessage.success('导入历史已清空')
 }
 </script>
 
@@ -131,7 +158,7 @@ function clearImportedData() {
         已导入: {{ displayFileName }}
         <el-tag :type="importedRows.length ? 'success' : 'warning'">{{ importedRows.length ? '已解析' : '待解析'}}</el-tag>
 
-        <el-button type="danger" link @click="clearImportedData">清楚当前数据</el-button>
+        <el-button type="danger" link @click="clearImportedData">清除当前数据</el-button>
       </p>
       </section>
 
