@@ -84,23 +84,28 @@ watch(
     },
 )
 
-function handleExportReport() {
-  const success = exportAnalysisReport(
-    filteredRows.value,
-    metrics.value,
-    {
-      month: selectedMonth.value,
-      department: selectedDepartment.value,
-      region: selectedRegion.value,
-    },
-  )
+async function handleExportReport() {
+    try{
+      const success = await exportAnalysisReport(
+        filteredRows.value,
+        metrics.value,
+        {
+            month: selectedMonth.value,
+            department: selectedDepartment.value,
+            region: selectedRegion.value,
+        },
+    )
 
-  if (success) {
-    ElMessage.success('经营分析报表导出成功')
-  } else {
-    ElMessage.warning('当前没有可以导出的数据')
-  }
+        if (success) {
+            ElMessage.success('经营分析报表导出成功')
+        } else {
+            ElMessage.warning('当前没有可以导出的数据')
+        }
+    } catch {
+        ElMessage.error('经营分析报表导出失败')
+    }
 }
+
 </script>
 
 <template>
@@ -306,5 +311,44 @@ function handleExportReport() {
 .heading-actions {
   display: flex;
   gap: 10px;
+}
+
+.heading-actions :deep(.el-button + .el-button) {
+  margin-left: 0;
+}
+
+@media (max-width: 640px) {
+  .analysis-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .heading-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .filter-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .filter-bar label {
+    width: 100%;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-item {
+    min-height: 96px;
+  }
+
+  .metric-item strong {
+    font-size: 20px;
+  }
 }
 </style>

@@ -26,6 +26,9 @@
 - ECharts
 - SheetJS（xlsx）
 - localStorage
+- Vitest
+- unplugin-auto-import
+- unplugin-vue-components
 
 ## 数据字段
 
@@ -44,6 +47,8 @@
 ```powershell
 npm.cmd install
 npm.cmd run dev
+npm.cmd test
+npm.cmd run build
 ```
 
 ## 项目结构
@@ -65,9 +70,19 @@ docs/
 下载模板 -> 上传 Excel -> 数据校验 -> 经营分析 -> 图表展示 -> 导出报表
 ```
 
+## 性能优化
+
+- 使用 Element Plus 按需加载，避免引入完整组件库和全部样式
+- 使用 ECharts Tree Shaking，仅注册折线图、柱状图、饼图及必要组件
+- 使用动态 `import()` 延迟加载 SheetJS，仅在导入或导出 Excel 时加载
+- 使用 `defineAsyncComponent()` 延迟加载经营分析和图表区域
+- 生产环境首屏 JavaScript 由约 2603 kB 降低至约 130 kB
+
 ## 测试记录
 
-已完成 11 个核心功能用例的真实浏览器测试，覆盖正常导入、异常校验、组合筛选、图表渲染、报表导出、本地持久化和历史记录，当前通过率为 100%。
+已完成 11 个核心功能用例的真实浏览器测试，覆盖正常导入、异常校验、组合筛选、图表渲染、报表导出、本地持久化和历史记录，通过率为 100%。
+
+同时使用 Vitest 编写 9 条自动化测试，覆盖数据合法性、重复记录、分类字段、数值边界、缓存版本、缓存结构和存储异常处理。
 
 [查看功能测试报告](./docs/test-cases.md)
 

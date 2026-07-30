@@ -5,7 +5,7 @@ const STORAGE_VERSION = 1
 
 function isValidCurrentImport(data) {
     return (
-        data && 
+        data &&
         typeof data === 'object' &&
         typeof data.fileName === 'string' &&
         Array.isArray(data.rows) &&

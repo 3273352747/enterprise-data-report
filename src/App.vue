@@ -1,12 +1,11 @@
 <script setup>
-import { ref,computed,onMounted } from 'vue'
+import { ref,computed,onMounted,defineAsyncComponent } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Download,UploadFilled } from '@element-plus/icons-vue'
 import DataPreview from './components/DataPreview.vue'
 import { parseExcelFile } from './utils/excel'
 import ValidationPanel from './components/ValidationPanel.vue'
 import { validateRows } from './utils/validator.js'
-import AnalysisPanel from './components/AnalysisPanel.vue'
 import { 
   saveCurrentImport,
   loadCurrentImport,
@@ -16,6 +15,14 @@ import {
   clearImportHistory, 
 } from './utils/storage.js'
 import ImportHistory from './components/ImportHistory.vue'
+
+const AnalysisPanel = defineAsyncComponent({
+  loader: () => import(
+    './components/AnalysisPanel.vue'
+  ),
+  delay: 100,
+  timeout: 10000,
+})
 
 const selectedFile = ref(null)
 const importedRows = ref([])
@@ -166,7 +173,7 @@ function handleClearHistory() {
         :on-change="handleFileChange"
         :on-remove="handleFileRemove"
         >
-        <el-icon class="upload-icon"><UploadFilled /></el-icon>
+        <el-icon class="el-icon--upload upload-icon"><UploadFilled /></el-icon>
         <div>将Excel文件拖到这里，或点击选择文件</div>
         <template #tip>
           <div class="upload-tip">仅支持 .xlsx 格式</div>

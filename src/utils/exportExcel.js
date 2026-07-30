@@ -1,5 +1,3 @@
-import { utils,writeFile } from "xlsx"
-
 function createTimestamp() {
     const now = new Date()
     const pad = (value) => String(value).padStart(2,'0')
@@ -7,9 +5,11 @@ function createTimestamp() {
     return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`
 }
 
-export function exportInvalidRows(rows) {
+export async function exportInvalidRows(rows) {
     if(!rows.length)
         return false
+
+    const { utils, writeFile } = await import('xlsx')
 
     const exportData = rows.map((row) => ({
     Excel行号: row.rowNumber,
@@ -44,9 +44,11 @@ export function exportInvalidRows(rows) {
     return true
 }
 
-export function exportAnalysisReport(rows,metrics,filters) {
+export async function exportAnalysisReport(rows,metrics,filters) {
     if(!rows.length)
         return false
+
+    const { utils, writeFile } = await import('xlsx')
 
   const summaryData = [
     { 项目: '筛选月份', 结果: filters.month },

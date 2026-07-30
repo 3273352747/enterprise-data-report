@@ -1,5 +1,3 @@
-import { read,utils } from 'xlsx'
-
 const requiredHeaders = [
     '月份',
     '部门',
@@ -32,6 +30,8 @@ export async function parseExcelFile(file) {
     if(file.size > 5*1024*1024){
         throw new Error('文件不能超过5MB')
     }
+
+    const { read,utils } = await import('xlsx')
 
     const buffer = await file.arrayBuffer()
     const workbook = read(buffer,{ type: 'array'})

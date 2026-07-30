@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import * as echarts from 'echarts'
+import echarts from '../../utils/echarts.js'
 
 const props = defineProps({
   rows: {

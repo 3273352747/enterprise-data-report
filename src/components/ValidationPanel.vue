@@ -12,13 +12,19 @@ const props = defineProps({
     },
 })
 
-function handleExportErrors() {
-    const success = exportInvalidRows(props.invalidRows)
-
-    if(success){
-        ElMessage.success('错误数据清单导出成功')
-    } else {
-        ElMessage.warning('没有可以导出的错误数据')
+async function handleExportErrors() {
+    try{
+        const success = await exportInvalidRows(
+            props.invalidRows,
+        )
+        
+        if(success){
+            ElMessage.success('错误数据清单导出成功')
+        } else {
+            ElMessage.warning('没有可以导出的错误数据')
+        }
+    } catch {
+        ElMessage.error('错误数据清单导出失败')
     }
 }
 </script>
@@ -103,5 +109,18 @@ function handleExportErrors() {
 
 .panel-header h3 {
   margin: 0;
+}
+
+@media (max-width: 640px) {
+  .panel-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .validation-summary {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
 }
 </style>

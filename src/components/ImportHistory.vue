@@ -93,4 +93,12 @@ const emit = defineEmits(['clear'])
   gap: 8px;
   flex-wrap: wrap;
 }
+
+@media (max-width: 640px) {
+  .history-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
 </style>
