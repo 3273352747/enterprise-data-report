@@ -1,10 +1,28 @@
 const CURRENT_IMPORT_KEY = 'enterprise-data-report:current-import'
 const IMPORT_HISTORY_KEY = 'enterprise-data-report:import-history'
 const MAX_HISTORY_COUNT = 8
+const STORAGE_VERSION = 1
+
+function isValidCurrentImport(data) {
+    return (
+        data && 
+        typeof data === 'object' &&
+        typeof data.fileName === 'string' &&
+        Array.isArray(data.rows) &&
+        data.rows.every((row) => {
+            return row && typeof row === 'object'
+        })
+    )
+}
 
 export function saveCurrentImport(data) {
     try{
-        localStorage.setItem(CURRENT_IMPORT_KEY,JSON.stringify(data))
+        const storageData = {
+            version: STORAGE_VERSION,
+            data,
+        }
+
+        localStorage.setItem(CURRENT_IMPORT_KEY,JSON.stringify(storageData))
         return true
     } catch {
         return false
@@ -14,14 +32,33 @@ export function saveCurrentImport(data) {
 export function loadCurrentImport() {
     try{
         const value = localStorage.getItem(CURRENT_IMPORT_KEY)
-        return value ? JSON.parse(value) : null
+
+        if(!value){
+            return null
+        }
+
+        const storageData = JSON.parse(value)
+
+        if(storageData.version !== STORAGE_VERSION ||
+            !isValidCurrentImport(storageData.data)
+        ){
+            localStorage.removeItem(CURRENT_IMPORT_KEY)
+            return null
+        }
+
+        return storageData.data
     } catch {
         return null
     }
 }
 
 export function clearCurrentImport() {
+    try{
     localStorage.removeItem(CURRENT_IMPORT_KEY)
+    return true
+    } catch {
+        return false
+    }
 }
 
 export function loadImportHistory() {

@@ -117,8 +117,12 @@ function clearImportedData() {
   restoredFileName.value = ''
   importedRows.value = []
   uploadRef.value?.clearFiles()
-  clearCurrentImport()
+
+  if(clearCurrentImport()){
   ElMessage.success('当前导入数据已清除')
+  } else {
+    ElMessage.warning('当前数据已从页面清除，但浏览器缓存清除失败')
+  }
 }
 
 function handleClearHistory() {

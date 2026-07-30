@@ -1,5 +1,5 @@
 <script setup>
-import { ref,computed } from 'vue'
+import { ref,computed,watch } from 'vue'
 import RevenueTrendChart from './charts/RevenueTrendChart.vue'
 import DepartmentProfitChart from './charts/DepartmentProfitChart.vue'
 import RegionRevenueChart from './charts/RegionRevenueChart.vue'
@@ -76,6 +76,13 @@ function resetFilters() {
     selectedDepartment.value = '全部'
     selectedRegion.value = '全部'
 }
+
+watch(
+    () => props.rows,
+    () => {
+        resetFilters()
+    },
+)
 
 function handleExportReport() {
   const success = exportAnalysisReport(
